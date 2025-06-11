@@ -18,21 +18,33 @@ MODEL_PATH = 'fake_news_model.joblib'
 
 def initialize_model():
     """Load or train the model on startup"""
+    global detector
     try:
-        if os.path.exists(MODEL_PATH):
-            logger.info("Loading pre-trained model...")
-            detector.load_model(MODEL_PATH)
-        else:
-            logger.info("No model found. Training new model...")
-            df = detector.create_sample_data()
-            detector.train_model(df)
-            detector.save_model(MODEL_PATH)
-        logger.info("Model ready")
+        detector = FakeNewsDetector()
+        
+        # Try loading with current environment first
+        try:
+            if os.path.exists(MODEL_PATH):
+                logger.info("Attempting to load pre-trained model...")
+                detector.load_model(MODEL_PATH)
+                logger.info("Model loaded successfully")
+                return
+        except Exception as load_error:
+            logger.warning(f"Model load failed: {str(load_error)}")
+            logger.warning("Will train new model instead")
+
+        # Fallback to training new model
+        logger.info("Training new model...")
+        df = detector.create_sample_data()
+        detector.train_model(df)
+        detector.save_model(MODEL_PATH)
+        logger.info("New model trained and saved")
+        
     except Exception as e:
-        logger.error(f"Model initialization failed: {str(e)}")
+        logger.error(f"Critical initialization error: {str(e)}")
         logger.error(traceback.format_exc())
         raise
-
+# Define routes
 @app.route('/')
 def home():
     return render_template('index.html')

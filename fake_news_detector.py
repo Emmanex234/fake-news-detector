@@ -116,9 +116,29 @@ class FakeNewsDetector:
         }
 
     def save_model(self, path):
-        """Save trained model"""
-        joblib.dump(self.pipeline, path)
+        """Save model with version info"""
+        save_data = {
+            'pipeline': self.pipeline,
+            'versions': {
+                'numpy': np.__version__,
+                'sklearn': sklearn.__version__
+            }
+        }
+        joblib.dump(save_data, path)
 
-    def load_model(self, path):
-        """Load trained model"""
-        self.pipeline = joblib.load(path)
+def load_model(self, path):
+    """Load model with version checking"""
+    loaded = joblib.load(path)
+    self.pipeline = loaded['pipeline']
+    
+    # Log version info
+    print(f"Model was saved with:")
+    print(f"- NumPy: {loaded['versions'].get('numpy', 'unknown')}")
+    print(f"- scikit-learn: {loaded['versions'].get('sklearn', 'unknown')}")
+    print(f"Current versions:")
+    print(f"- NumPy: {np.__version__}")
+    print(f"- scikit-learn: {sklearn.__version__}")
+
+def load_model(self, path):
+    """Load trained model"""
+    self.pipeline = joblib.load(path)
