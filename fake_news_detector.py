@@ -8,6 +8,7 @@ from sklearn.pipeline import Pipeline
 import joblib
 import re
 import nltk
+import sklearn
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 import warnings
